@@ -30,10 +30,15 @@
 	<string>MainWindow</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Ingleby_bold_italic.ttf</string>
+		<string>Ingleby_bold.ttf</string>
+		<string>Ingleby_italic.ttf</string>
+		<string>Ingleby_regular.ttf</string>
 	</array>
 </dict>
 </plist>
