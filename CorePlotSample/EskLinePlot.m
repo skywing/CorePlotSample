@@ -22,6 +22,7 @@
     self = [super init];
     if (self) 
     {
+        // setting up the sample data here.
         sampleData = [[NSArray alloc] initWithObjects:[NSNumber numberWithInt:6000],
                                                       [NSNumber numberWithInt:3000],
                                                       [NSNumber numberWithInt:2000],
@@ -52,12 +53,14 @@
     
     CGRect bounds = layerHostingView.bounds;
     
+    // Create the graph and assign the hosting view.
     graph = [[CPTXYGraph alloc] initWithFrame:bounds];
     layerHostingView.hostedGraph = graph;
     [graph applyTheme:theme];
     
     graph.plotAreaFrame.masksToBorder = NO;
     
+    // chang the chart layer orders so the axis line is on top of the bar in the chart.
     NSArray *chartLayers = [[NSArray alloc] initWithObjects:[NSNumber numberWithInt:CPTGraphLayerTypePlots],
                                                             [NSNumber numberWithInt:CPTGraphLayerTypeMajorGridLines], 
                                                             [NSNumber numberWithInt:CPTGraphLayerTypeMinorGridLines],  
@@ -68,6 +71,8 @@
     graph.topDownLayerOrder = chartLayers;    
     [chartLayers release];
     
+    
+    // Add plot space for horizontal bar charts
     graph.paddingLeft = 90.0;
 	graph.paddingTop = 50.0;
 	graph.paddingRight = 20.0;
@@ -80,15 +85,12 @@
     plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0f) length:CPTDecimalFromFloat(6.0f)];
     plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0f) length:CPTDecimalFromFloat(10000)];
     
-    // Axes
+    // Setup grid line style
     CPTMutableLineStyle *majorXGridLineStyle = [CPTMutableLineStyle lineStyle];
     majorXGridLineStyle.lineWidth = 1.0f;
     majorXGridLineStyle.lineColor = [[CPTColor grayColor] colorWithAlphaComponent:0.25f];
     
-    
-    //NSNumberFormatter *intFormatter = [[NSNumberFormatter alloc] init];
-    //[intFormatter setGeneratesDecimalNumbers:NO];
-    
+    // Setup x-Axis.
 	CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
     CPTXYAxis *x = axisSet.xAxis;
     x.labelingPolicy = CPTAxisLabelingPolicyNone;
@@ -97,12 +99,12 @@
     x.minorTicksPerInterval = 1;
 
     x.orthogonalCoordinateDecimal = CPTDecimalFromString(@"0");
-    //x.labelFormatter = intFormatter;
     x.title = @"Years";
     x.timeOffset = 30.0f;
  	NSArray *exclusionRanges = [NSArray arrayWithObjects:[CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInt(0)], nil];
 	x.labelExclusionRanges = exclusionRanges;
     
+    // Use custom x-axis label so it will display year 2010, 2011, 2012, ... instead of 1, 2, 3, 4
     NSMutableArray *labels = [[NSMutableArray alloc] initWithCapacity:[sampleYears count]];
     int idx = 0;
     for (NSString *year in sampleYears)
@@ -117,6 +119,7 @@
     x.axisLabels = [NSSet setWithArray:labels];
     [labels release];
     
+    // Setup y-Axis.
     CPTMutableLineStyle *majorYGridLineStyle = [CPTMutableLineStyle lineStyle];
     majorYGridLineStyle.lineWidth = 1.0f;
     majorYGridLineStyle.dashPattern =  [NSArray arrayWithObjects:[NSNumber numberWithFloat:5.0f], [NSNumber numberWithFloat:5.0f], nil];
@@ -164,6 +167,7 @@
 
 }
 
+// Assign different color to the touchable line symbol.
 - (void)applyTouchPlotColor
 {
     CPTColor *touchPlotColor = [CPTColor orangeColor];
@@ -187,6 +191,7 @@
     
 }
 
+// Highlight the touch plot when the user holding tap on the line symbol.
 - (void)applyHighLightPlotColor:(CPTScatterPlot *)plot
 {
     CPTColor *selectedPlotColor = [CPTColor redColor];
@@ -212,6 +217,7 @@
 #pragma mark -
 #pragma mark Plot Space Delegate Methods
 
+// This implementation of this method will put the line graph in a fix position so it won't be scrollable.
 -(CPTPlotRange *)plotSpace:(CPTPlotSpace *)space willChangePlotRangeTo:(CPTPlotRange *)newRange forCoordinate:(CPTCoordinate)coordinate 
 {
     
@@ -224,6 +230,7 @@
     }
 }
 
+// This method is call when user touch & drag on the plot space.
 - (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceDraggedEvent:(id)event atPoint:(CGPoint)point
 {
     CGPoint pointInPlotArea = [graph convertPoint:point toLayer:graph.plotAreaFrame];

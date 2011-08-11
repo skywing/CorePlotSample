@@ -21,6 +21,7 @@
     self = [super init];
     if (self) 
     {
+        // Setting up sample data here.
         sampleData = [[NSArray alloc] initWithObjects:[NSNumber numberWithInt:0],
                                                       [NSNumber numberWithInt:2000], 
                                                       [NSNumber numberWithInt:5000], 
@@ -31,6 +32,7 @@
         
         sampleProduct = [[NSArray alloc] initWithObjects:@"", @"A", @"B", @"C", @"D", @"E", nil];
         
+        // Initialize the currency formatter to support negative with the default currency style.
         currencyFormatter = [[NSNumberFormatter alloc] init];
         [currencyFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
         [currencyFormatter setNegativePrefix:@"-"];
@@ -51,6 +53,7 @@
 {
     CGRect bounds = layerHostingView.bounds;
     
+    // create and assign chart to the hosting view.
     graph = [[CPTXYGraph alloc] initWithFrame:bounds];
     layerHostingView.hostedGraph = graph;
     [graph applyTheme:theme];
@@ -63,6 +66,7 @@
 	graph.paddingBottom = 60.0;
     
     
+    // chang the chart layer orders so the axis line is on top of the bar in the chart.
     NSArray *chartLayers = [[NSArray alloc] initWithObjects:[NSNumber numberWithInt:CPTGraphLayerTypeAxisLines],  
                                                             [NSNumber numberWithInt:CPTGraphLayerTypePlots], 
                                                             [NSNumber numberWithInt:CPTGraphLayerTypeMajorGridLines], 
@@ -79,7 +83,7 @@
     plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInt(10000)];
     plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInt(6)];
     
-    
+    // Setting X-Axis
     CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
     CPTXYAxis *x = axisSet.xAxis;
     x.labelingPolicy = CPTAxisLabelingPolicyNone;
@@ -91,7 +95,7 @@
     x.orthogonalCoordinateDecimal = CPTDecimalFromString(@"0");
     x.labelExclusionRanges = [NSArray arrayWithObjects:[CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(6) length:CPTDecimalFromInt(1)], nil];
     
-    
+    // Use custom x-axis label so it will display product A, B, C... instead of 1, 2, 3, 4
     NSMutableArray *labels = [[NSMutableArray alloc] initWithCapacity:[sampleProduct count]];
     int idx = 0;
     for (NSString *product in sampleProduct)
@@ -106,7 +110,7 @@
     x.axisLabels = [NSSet setWithArray:labels];
     [labels release];
     
-    
+    // Setting up y-axis
 	CPTXYAxis *y = axisSet.yAxis;
     y.majorIntervalLength = CPTDecimalFromInt(1000);
     y.minorTicksPerInterval = 0;
@@ -153,6 +157,9 @@
 
 }
 
+// We can decide what color to fill the bar in the chart at the given index here.
+// In this case, when the given index match the selected bar index, we change the color
+// to clear color, so we select Plot layer on top of the default one can has it own transparent color.
 -(CPTFill *)barFillForBarPlot:(CPTBarPlot *)barPlot recordIndex:(NSUInteger)index
 {
     if (barPlot.identifier == kDefaultPlot && index == selectedBarIndex)
@@ -169,12 +176,14 @@
     selectedBarIndex = index;
     [graph reloadData];
     
+    // Notify the view controller that a bar was selected, so it can change the label description.
     if ([delegate respondsToSelector:@selector(barPlot:barWasSelectedAtRecordIndex:)])
     {
         [delegate barPlot:self barWasSelectedAtRecordIndex:index];
     }
 }
 
+// This method is call to put the number figure on the top tip of the bar.
 -(CPTLayer *)dataLabelForPlot:(CPTPlot *)plot recordIndex:(NSUInteger)index 
 {
     if (index == selectedBarIndex && [plot.identifier isEqual:kSelectedPlot]) 
@@ -209,6 +218,7 @@
     }
     else if (fieldEnum == CPTBarPlotFieldBarTip)
     {
+        // The select plot will only return a value when a bar was selected.
         if (plot.identifier == kDefaultPlot || 
             (plot.identifier == kSelectedPlot && index == selectedBarIndex))
         {
