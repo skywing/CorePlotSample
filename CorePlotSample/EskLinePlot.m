@@ -214,9 +214,7 @@
     plot.dataLineStyle = selectedLineStyle;
 }
 
-#pragma mark -
-#pragma mark Plot Space Delegate Methods
-
+#pragma mark - CPPlotSpace Delegate Methods
 // This implementation of this method will put the line graph in a fix position so it won't be scrollable.
 -(CPTPlotRange *)plotSpace:(CPTPlotSpace *)space willChangePlotRangeTo:(CPTPlotRange *)newRange forCoordinate:(CPTCoordinate)coordinate 
 {
@@ -233,6 +231,7 @@
 // This method is call when user touch & drag on the plot space.
 - (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceDraggedEvent:(id)event atPoint:(CGPoint)point
 {
+    // Convert the touch point to plot area frame location
     CGPoint pointInPlotArea = [graph convertPoint:point toLayer:graph.plotAreaFrame];
     
     NSDecimal newPoint[2];
@@ -261,14 +260,17 @@
     return YES;
 }
 
-#pragma mark - CPPlotSpace Delegate Methods
-- (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceDownEvent:(id)event atPoint:(CGPoint)point
+- (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceDownEvent:(id)event 
+          atPoint:(CGPoint)point
 {
     return YES;
 }
 
 - (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceUpEvent:(id)event atPoint:(CGPoint)point
 {
+    // Restore the vertical line plot to its initial color.
+    [self applyTouchPlotColor];
+    touchPlotSelected = NO;
     return YES;
 }
 
@@ -280,11 +282,10 @@
     if ([(NSString *)plot.identifier isEqualToString:kLinePlot]) 
     {
         touchPlotSelected = YES;
+        [self applyHighLightPlotColor:plot];
+        if ([delegate respondsToSelector:@selector(linePlot:indexLocation:)])
+            [delegate linePlot:self indexLocation:index];
     } 
-
-    [self applyHighLightPlotColor:plot];
-    if ([delegate respondsToSelector:@selector(linePlot:indexLocation:)])
-        [delegate linePlot:self indexLocation:index];
 }
 
 
